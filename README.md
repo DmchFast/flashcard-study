@@ -1,7 +1,7 @@
 # Flashcard Study
-Этот репозиторий является каркасом для будущего веб-приложения.
+Веб-приложение, которое поможет быстро и легко запоминать слова на разных языках.
 ## Ссылка на Flashcard Study
-[Flashcard Study на GitHub Pages](https://github.com/DmchFast/react-project/)
+[Flashcard Study на GitHub Pages](https://dmchfast.github.io/flashcard-study/)
 ## Быстрый запуск dev версии через cmd для разработки
 ```bash
 npm run dev  
