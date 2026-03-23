@@ -1,120 +1,97 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React from 'react'
+import { Layout, Typography, Space, message } from 'antd'
+import { BookOutlined } from '@ant-design/icons'
+import UploadSection from './components/UploadSection'
+import Flashcard from './components/Flashcard'
+import Stats from './components/Stats'
+import useFlashcard from './hooks/useFlashcard'
+
+const { Header, Content, Footer } = Layout
+const { Title } = Typography
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    words,
+    currentIndex,
+    totalCards,
+    isFlipped,
+    flipCard,
+    nextCard,
+    loadWords,
+    resetCards,
+    getCurrentWord
+  } = useFlashcard()
+
+  const [messageApi, contextHolder] = message.useMessage()
+
+  const handleFileUpload = (file) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const content = e.target.result
+      const success = loadWords(content)
+      if (success) {
+        messageApi.success(`Загружено ${words.length} карточек`)
+      } else {
+        messageApi.error('Ошибка формата файла. Используйте разделитель " – ", " - " или "|"')
+      }
+    }
+    reader.readAsText(file, 'UTF-8')
+    return false
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Layout style={{ minHeight: '100vh' }}>
+      {contextHolder}
+      <Header
+        style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 32px'
+        }}
+      >
+        <Space>
+          <BookOutlined style={{ fontSize: 28, color: 'white' }} />
+          <Title level={3} style={{ margin: 0, color: 'white' }}>
+            Flashcard Study
+          </Title>
+        </Space>
+      </Header>
 
-      <div className="ticks"></div>
+      <Content style={{ padding: '48px 24px', background: '#f0f2f5' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <UploadSection
+            onUpload={handleFileUpload}
+            onReset={resetCards}
+            hasWords={words.length > 0}
+          />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <Flashcard
+            word={getCurrentWord()}
+            isFlipped={isFlipped}
+            onFlip={flipCard}
+            hasWords={words.length > 0}
+          />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          <Stats
+            currentIndex={currentIndex}
+            totalCards={totalCards}
+            onNext={nextCard}
+            hasWords={words.length > 0}
+          />
+        </div>
+      </Content>
+
+      <Footer
+        style={{
+          textAlign: 'center',
+          background: '#f5f5f5',
+          color: 'rgba(0,0,0,0.45)'
+        }}
+      >
+        Формат файла: каждая строка содержит слово – перевод (можно использовать –, - или |)
+      </Footer>
+    </Layout>
   )
 }
 
